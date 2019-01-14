@@ -25,7 +25,7 @@ def main():
     img_orig_mand_kirch_train = []
     # img_orig_mand_kirch_test = []
     for c in camera_names:
-        img_orig_mand_train += [np.asarray(map(lambda x: os.path.join(original_path, x), os.listdir(os.path.join(original_path, c))))[idx_set_1]]
+        img_orig_mand_train += [np.asarray(map(lambda x: os.path.jomi dispciain(original_path, x), os.listdir(os.path.join(original_path, c))))[idx_set_1]]
         img_orig_mand_train += [np.asarray(os.listdir(os.path.join(mandelli_path, c)))[idx_set_1]]
         img_orig_kirc_train += [np.asarray(os.listdir(os.path.join(original_path, c)))[idx_set_1]]
         img_orig_kirc_train += [np.asarray(os.listdir(os.path.join(kirchner_path, c)))[idx_set_1]]
