@@ -1,39 +1,58 @@
 import os
 import numpy as np
 import pandas as pd
-from params import mandelli_path, kirchner_path, original_path, prnu_path
+from params import mandelli_path, kirchner_path, original_path, db_path
+
+
+def create_df(path_arr):
+    df = pd.DataFrame(data=path_arr, columns=['ProbePath'])
+    df['Device'] = df['ProbePath'].map(lambda x: x.split('/')[-1].rsplit('_', 1)[0])
+    df['Provenance'] = df['ProbePath'].map(lambda x: x.split('/')[-2])
+    return df
 
 
 def main():
     np.random.seed(21)
 
-    camera_names = os.listdir(original_path)
-    idx_perm = np.random.permutation(len(os.listdir(os.path.join(original_path, camera_names[0]))))
-    idx_set_1 = idx_perm[len(idx_perm) // 2:]
-    idx_set_2 = idx_perm[:len(idx_perm) // 2 + 1]
+    # split idx
+    idx_perm = np.random.permutation(len(os.listdir(original_path)))
+    idx_set_train = idx_perm[:len(idx_perm) // 2]
+    idx_set_test = idx_perm[len(idx_perm) // 2:]
 
-    img_names = {}
-    for c in camera_names:
-        img_names[c] = os.listdir(os.path.join(original_path, c))
+    # complete lists
+    mand_path_list = np.asarray([os.path.join(mandelli_path, x) for x in os.listdir(mandelli_path)])
+    kirch_path_list = np.asarray([os.path.join(kirchner_path, x) for x in os.listdir(kirchner_path)])
+    orig_path_list = np.asarray([os.path.join(original_path, x) for x in os.listdir(original_path)])
 
-    pass
+    # train-test split
+    orig_mand_path_list_train = np.concatenate([orig_path_list[idx_set_train], mand_path_list[idx_set_train]])
+    orig_kirch_path_list_train = np.concatenate([orig_path_list[idx_set_train], kirch_path_list[idx_set_train]])
+    orig_mand_kirch_path_list_train = np.concatenate([orig_path_list[idx_set_train],
+                                                mand_path_list[idx_set_train[:len(idx_set_train) // 2]],
+                                                kirch_path_list[idx_set_train[len(idx_set_train) // 2:]]])
+    orig_path_list_test = orig_path_list[idx_set_test]
+    mand_path_list_test = mand_path_list[idx_set_test]
+    kirch_path_list_test = kirch_path_list[idx_set_test]
 
-    img_orig_mand_train = []
-    # img_orig_mand_test = []
-    img_orig_kirc_train = []
-    # img_orig_kirc_test = []
-    img_orig_mand_kirch_train = []
-    # img_orig_mand_kirch_test = []
-    for c in camera_names:
-        img_orig_mand_train += [np.asarray(map(lambda x: os.path.jomi dispciain(original_path, x), os.listdir(os.path.join(original_path, c))))[idx_set_1]]
-        img_orig_mand_train += [np.asarray(os.listdir(os.path.join(mandelli_path, c)))[idx_set_1]]
-        img_orig_kirc_train += [np.asarray(os.listdir(os.path.join(original_path, c)))[idx_set_1]]
-        img_orig_kirc_train += [np.asarray(os.listdir(os.path.join(kirchner_path, c)))[idx_set_1]]
-        img_orig_mand_kirch_train += [np.asarray(os.listdir(os.path.join(original_path, c)))[idx_set_1]]
-        img_orig_mand_kirch_train += [np.asarray(os.listdir(os.path.join(mandelli_path, c)))[idx_set_1][:50]]
-        img_orig_mand_kirch_train += [np.asarray(os.listdir(os.path.join(kirchner_path, c)))[idx_set_1][50:]]
+    # creating DFs
+    orig_mand_df_train = create_df(orig_mand_path_list_train)
+    orig_kirch_df_train = create_df(orig_kirch_path_list_train)
+    orig_mand_kirch_df_train = create_df(orig_mand_kirch_path_list_train)
+    orig_df_test = create_df(orig_path_list_test)
+    mand_df_test = create_df(mand_path_list_test)
+    kirch_df_test = create_df(kirch_path_list_test)
 
-    pass
+    # saving DFs
+    orig_mand_df_train.to_csv(os.path.join(db_path, 'orig_mand_train.csv'), index=None)
+    orig_kirch_df_train.to_csv(os.path.join(db_path, 'orig_kirch_train.csv'), index=None)
+    orig_mand_kirch_df_train.to_csv(os.path.join(db_path, 'orig_mand_kirch_train.csv'), index=None)
+    orig_df_test.to_csv(os.path.join(db_path, 'orig_test.csv'), index=None)
+    mand_df_test.to_csv(os.path.join(db_path, 'mand_test.csv'), index=None)
+    kirch_df_test.to_csv(os.path.join(db_path, 'kirch_test.csv'), index=None)
+
+    # saving idx
+    np.save(os.path.join(db_path, 'idx_train.npy'), idx_set_train)
+    np.save(os.path.join(db_path, 'idx_test.npy'), idx_set_test)
 
 
 if __name__ == '__main__':
