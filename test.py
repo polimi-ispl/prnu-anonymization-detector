@@ -37,6 +37,7 @@ def main():
     parser.add_argument('--patch_stride', help='Patch stride', type=int)
     parser.add_argument('--num_workers', help='Parallel job in data loading', required=False, type=int)
     parser.add_argument('--batch_size', help='Training image batch size', required=False, type=int)
+    parser.add_argument('--test_on_train', action='store_true')
     parser.add_argument('--debug', help='Debug flag for visualization', required=False, action='store_true')
 
     args = parser.parse_args()
@@ -50,6 +51,7 @@ def main():
     patch_stride = args.patch_stride if args.patch_stride is not None else default_patch_stride
     num_workers = args.num_workers if args.num_workers is not None else default_num_workers
     batch_size = args.batch_size if args.batch_size is not None else default_batch_size
+    test_on_train_flag = args.test_on_train
     debug = args.debug
 
     # transform function as needed from torch model zoo
@@ -59,8 +61,9 @@ def main():
     # Inizialize database and dataloader
     db_class = getattr(db_classes, db_name)
     db = db_class(patch_size=patch_size, patch_stride=patch_stride, transform=normalize, subsample=subsample)
-    db.generate_split(train_size=default_train_size)
-    db.train()
+    if test_on_train_flag:
+        db.generate_split(train_size=default_train_size)
+        db.train()
     dl_test = DataLoader(db, batch_size=batch_size, num_workers=num_workers, shuffle=True, drop_last=True)
 
     # initialize network
