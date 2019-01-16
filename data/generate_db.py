@@ -33,6 +33,8 @@ def main():
     orig_path_list_test = orig_path_list[idx_set_test]
     mand_path_list_test = mand_path_list[idx_set_test]
     kirch_path_list_test = kirch_path_list[idx_set_test]
+    orig_mand_path_list_test = np.concatenate([orig_path_list[idx_set_test], mand_path_list[idx_set_test]])
+    orig_kirch_path_list_test = np.concatenate([orig_path_list[idx_set_test], kirch_path_list[idx_set_test]])
 
     # creating DFs
     orig_mand_df_train = create_df(orig_mand_path_list_train)
@@ -41,6 +43,8 @@ def main():
     orig_df_test = create_df(orig_path_list_test)
     mand_df_test = create_df(mand_path_list_test)
     kirch_df_test = create_df(kirch_path_list_test)
+    orig_mand_df_test = create_df(orig_mand_path_list_test)
+    orig_kirch_df_test = create_df(orig_kirch_path_list_test)
 
     # saving DFs
     orig_mand_df_train.to_csv(os.path.join(db_path, 'orig_mand_train.csv'), index=None)
@@ -49,6 +53,8 @@ def main():
     orig_df_test.to_csv(os.path.join(db_path, 'orig_test.csv'), index=None)
     mand_df_test.to_csv(os.path.join(db_path, 'mand_test.csv'), index=None)
     kirch_df_test.to_csv(os.path.join(db_path, 'kirch_test.csv'), index=None)
+    orig_mand_df_test.to_csv(os.path.join(db_path, 'orig_mand_test.csv'), index=None)
+    orig_kirch_df_test.to_csv(os.path.join(db_path, 'orig_kirch_test.csv'), index=None)
 
     # saving idx
     np.save(os.path.join(db_path, 'idx_train.npy'), idx_set_train)

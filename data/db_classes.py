@@ -323,3 +323,39 @@ class Test3(TestDB):
         self.current_db = self.original_db
         self.current_idx = self.current_db.index
         super().compute_patch_idx_lenght()
+
+
+class TestOS(TestDB):
+    def __init__(self, patch_size, subsample: float = None, transform=None, patch_stride: tuple = None):
+        super().__init__(patch_size, subsample, transform, patch_stride)
+
+        self.csv_path = os.path.join(db_path, 'orig_mand_test.csv')
+        self.original_db = pd.read_csv(self.csv_path)
+
+        if subsample:
+            self.original_db = self.original_db.sample(frac=subsample, random_state=self.seed)
+
+        if transform:
+            self.transform = transform
+
+        self.current_db = self.original_db
+        self.current_idx = self.current_db.index
+        super().compute_patch_idx_lenght()
+
+
+class TestOK(TestDB):
+    def __init__(self, patch_size, subsample: float = None, transform=None, patch_stride: tuple = None):
+        super().__init__(patch_size, subsample, transform, patch_stride)
+
+        self.csv_path = os.path.join(db_path, 'orig_kirch_test.csv')
+        self.original_db = pd.read_csv(self.csv_path)
+
+        if subsample:
+            self.original_db = self.original_db.sample(frac=subsample, random_state=self.seed)
+
+        if transform:
+            self.transform = transform
+
+        self.current_db = self.original_db
+        self.current_idx = self.current_db.index
+        super().compute_patch_idx_lenght()
