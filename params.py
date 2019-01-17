@@ -22,7 +22,7 @@ default_batch_size = 48
 default_lr = 0.01
 default_n_epochs = 30
 default_train_size = 0.7
-early_stop = 7
+early_stop = 10
 
 # visualization params
 log_period_iter = 7
