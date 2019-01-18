@@ -9,7 +9,7 @@ from imageio import imread
 from patch import PatchExtractor
 from params import db_path
 from skimage.restoration import denoise_wavelet
-
+from prnu.prnu.functions import wiener_adaptive, zero_mean_total
 
 class TrainDB(Dataset):
     def __init__(self, patch_size: tuple, subsample: float, transform_pre=None, transform_post=None, patch_stride: tuple = None):
@@ -74,6 +74,22 @@ class TrainDB(Dataset):
                                                             self.patch_size[1] * 2),
                                                 axes=[0, 1])))[:self.patch_size[0], :self.patch_size[1]]
             img = img_noise_fft
+
+        if self.transform_pre == 'wv_fft_wiener':
+
+            img_den = denoise_wavelet(img, multichannel=True)
+            img_noise = img - img_den
+            img_noise_fft = np.abs((np.fft.fft2(img_noise, (self.patch_size[0] * 2,
+                                                            self.patch_size[1] * 2),
+                                                axes=[0, 1])))[:self.patch_size[0], :self.patch_size[1]]
+
+            W = np.zeros_like(img_noise_fft)
+            for c in range(img_noise_fft.ndim):
+                W_c = zero_mean_total(img_noise_fft[:, :, c])
+                W_c_std = W_c.std(ddof=1)
+                W[:, :, c] = wiener_adaptive(W_c, W_c_std ** 2).astype(np.float32)
+
+            img = W
 
         label = np.zeros((1,)).astype(np.uint8) if self.current_db.loc[self.current_idx[cpi]].Provenance == 'original' \
             else np.ones((1, )).astype(np.uint8)
