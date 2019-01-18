@@ -11,7 +11,7 @@ data_path = os.path.join(root_path, 'data')
 db_path = os.path.join(data_path, 'db')
 model_path = os.path.join(data_path, 'model')
 runs_path = os.path.join(data_path, 'runs')
-results_path = os.path.join(root_path, 'results')
+results_path = os.path.join(data_path, 'results')
 
 # default params
 default_subsample = 1

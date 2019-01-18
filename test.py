@@ -30,6 +30,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', help='GPU to use (0 based)', required=False, default=0, type=int)
     parser.add_argument('--db', help='Database to use during training', required=True, type=str)
+    parser.add_argument('--transform_pre', help='Apply transformation before casting to Tensor', type=str)
     parser.add_argument('--model', help='Network model to be trained', required=True, type=str)
     parser.add_argument('--runs', nargs='+', help='Run code for selected models (one or more)', required=True, type=str)
     parser.add_argument('--subsample', help='Fraction of image to keep subsampling db', type=float)
@@ -44,6 +45,7 @@ def main():
 
     device = torch.device('cuda:{}'.format(args.gpu) if torch.cuda.is_available() else 'cpu')
     db_name = args.db
+    transform_pre = args.transform_pre
     model_name = args.model
     run_list = args.runs
     subsample = args.subsample if args.subsample is not None else default_subsample
@@ -60,7 +62,7 @@ def main():
 
     # Inizialize database and dataloader
     db_class = getattr(db_classes, db_name)
-    db = db_class(patch_size=patch_size, patch_stride=patch_stride, transform=normalize, subsample=subsample)
+    db = db_class(patch_size=patch_size, patch_stride=patch_stride, transform_pre=transform_pre, transform_post=normalize, subsample=subsample)
     if test_on_train_flag:
         db.generate_split(train_size=default_train_size)
         db.train()
@@ -82,8 +84,6 @@ def main():
         model.classifier._modules['6'] = torch.nn.Linear(num_ftrs, 1)
 
     elif model_name == 'vgg':
-        # model = models.vgg16_bn(pretrained=False, init_weights=False)
-        # model.load_state_dict(model_zoo.load_url(vgg_model_urls['vgg16'], model_dir=model_path))
         model = models.vgg16_bn(pretrained=False)
         # craft network last layer to be a two-class classifier
         num_ftrs = model.classifier._modules['6'].in_features
@@ -93,7 +93,12 @@ def main():
     s = torch.nn.Sigmoid()
 
     for run_name in run_list:
+        print('\n\n')
         print('Testing model {} with dataset {}'.format(run_name, db.__class__.__name__))
+        if transform_pre:
+            print('\nApply preprocessing {}'.format(transform_pre))
+
+        print('\n\n')
 
         # Load weights
         run_folder = glob(os.path.join(runs_path, '*-{}'.format(run_name)))[0]
@@ -122,6 +127,7 @@ def main():
 
         if debug:
             print('FPR: {} \n TPR: {}\n'.format(fpr, tpr))
+
         # Save result to npy
         os.makedirs(os.path.join(results_path, run_name + '_' + db.__class__.__name__), exist_ok=True)
         np.save(os.path.join(results_path, run_name + '_' + db.__class__.__name__, 'result.npy'),

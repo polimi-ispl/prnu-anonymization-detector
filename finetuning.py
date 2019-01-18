@@ -28,6 +28,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', help='GPU to use (0 based)', required=False, default=0, type=int)
     parser.add_argument('--db', help='Database to use during training', required=True, type=str)
+    parser.add_argument('--transform_pre', help='Apply transformation before casting to Tensor', type=str)
     parser.add_argument('--model', help='Network model to be trained', required=True, type=str)
     parser.add_argument('--subsample', help='Fraction of image to keep subsampling db', type=float)
     parser.add_argument('--patch_size', help='Patch size', type=int)
@@ -43,6 +44,7 @@ def main():
 
     device = torch.device('cuda:{}'.format(args.gpu) if torch.cuda.is_available() else 'cpu')
     db_name = args.db
+    transform_pre = args.transform_pre
     model_name = args.model
     subsample = args.subsample if args.subsample is not None else default_subsample
     patch_size = args.patch_size if args.patch_size is not None else default_patch_size
@@ -60,7 +62,7 @@ def main():
 
     # Inizialize database and dataloader
     db_class = getattr(db_classes, db_name)
-    db = db_class(patch_size=patch_size, patch_stride=patch_stride, transform=normalize, subsample=subsample)
+    db = db_class(patch_size=patch_size, patch_stride=patch_stride, transform_pre=transform_pre, transform_post=normalize, subsample=subsample)
     db.generate_split(train_size=default_train_size)
     dl_train = DataLoader(db, batch_size=batch_size, num_workers=num_workers, shuffle=True, drop_last=True)
 
@@ -74,6 +76,9 @@ def main():
         # craft network last layer to be a two-class classifier
         num_ftrs = model.fc.in_features
         model.fc = torch.nn.Linear(num_ftrs, 1)
+
+        model = ResNet(BasicBlock, [2, 2, 2])
+        model.load_state_dict(model_zoo.load_url(resnet_model_urls['resnet18'], model_dir=model_path), strict=False)
 
     elif model_name == 'alexnet':
         model = models.alexnet(pretrained=False)
@@ -113,27 +118,35 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
-    # Prepare Tensorboard writer
-    writer_dir = os.path.join(runs_path,
-                              model.__class__.__name__ + '_' +
-                              '{}'.format(db.__class__.__name__) + '_' +
-                              'subsample_{}'.format(subsample) + '_' +
-                              'patch_{}'.format(patch_size) + '_' +
-                              'stride_{}'.format(patch_stride) + '_' +
-                              'batch_{}'.format(batch_size) + '_' +
-                              'lr_{}'.format(lr) + '_' +
-                              'nepochs_{}'.format(n_epochs))
-    run_name = [random.choice(string.ascii_letters + string.digits) for _ in range(6)]
-    writer_dir += '-' + ''.join(run_name)
-    while os.path.exists(writer_dir):
+    if debug:
+        # Prepare Tensorboard writer
+        writer_dir = os.path.join(runs_path,
+                                  model.__class__.__name__ + '_' +
+                                  '{}'.format(db.__class__.__name__) + '_' +
+                                  'transform_{}'.format(transform_pre) + '_' +
+                                  'subsample_{}'.format(subsample) + '_' +
+                                  'patch_{}'.format(patch_size) + '_' +
+                                  'stride_{}'.format(patch_stride) + '_' +
+                                  'batch_{}'.format(batch_size) + '_' +
+                                  'lr_{}'.format(lr) + '_' +
+                                  'nepochs_{}'.format(n_epochs))
         run_name = [random.choice(string.ascii_letters + string.digits) for _ in range(6)]
-        writer_dir = writer_dir.rsplit('-', 1)[0]
         writer_dir += '-' + ''.join(run_name)
-    writer = SummaryWriter(writer_dir)
-    db.train_db.to_csv(os.path.join(writer_dir, 'train.csv'))
-    db.val_db.to_csv(os.path.join(writer_dir, 'val.csv'))
-    print('\n\nFinetuning model {} on db {}, run {}\n\n'.format(model.__class__.__name__, db.__class__.__name__,
-                                                                ''.join(run_name)))
+        while os.path.exists(writer_dir):
+            run_name = [random.choice(string.ascii_letters + string.digits) for _ in range(6)]
+            writer_dir = writer_dir.rsplit('-', 1)[0]
+            writer_dir += '-' + ''.join(run_name)
+        writer = SummaryWriter(writer_dir)
+        db.train_db.to_csv(os.path.join(writer_dir, 'train.csv'))
+        db.val_db.to_csv(os.path.join(writer_dir, 'val.csv'))
+        print('\n\n')
+        print('Finetuning model {} on db {}, run {}'.format(model.__class__.__name__, db.__class__.__name__,
+                                                                    ''.join(run_name)))
+        if transform_pre:
+            print('\nApply preprocessing {}'.format(transform_pre))
+
+        print('\n\n')
+
     min_val_loss = np.inf
     early_stop_counter = 0
     early_stop_flag = False
