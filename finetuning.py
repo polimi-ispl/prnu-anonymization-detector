@@ -77,8 +77,8 @@ def main():
         num_ftrs = model.fc.in_features
         model.fc = torch.nn.Linear(num_ftrs, 1)
 
-        model = ResNet(BasicBlock, [2, 2, 2])
-        model.load_state_dict(model_zoo.load_url(resnet_model_urls['resnet18'], model_dir=model_path), strict=False)
+        # model = ResNet(BasicBlock, [2, 2, 2])
+        # model.load_state_dict(model_zoo.load_url(resnet_model_urls['resnet18'], model_dir=model_path), strict=False)
 
     elif model_name == 'alexnet':
         model = models.alexnet(pretrained=False)

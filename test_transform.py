@@ -24,6 +24,7 @@ from params import db_path, default_batch_size, default_lr, default_n_epochs, de
 import data.db_classes as db_classes
 
 warnings.filterwarnings("ignore")
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 
 def main():
@@ -74,7 +75,7 @@ def main():
         db = db_class(patch_size=patch_size, patch_stride=patch_stride, transform_pre=transform_pre,
                       transform_post=normalize, transform_test=transform_test, subsample=subsample)
 
-    dl_test = DataLoader(db, batch_size=batch_size, num_workers=num_workers, shuffle=True, drop_last=True)
+    dl_test = DataLoader(db, batch_size=batch_size, num_workers=num_workers, shuffle=False, drop_last=True)
 
     # initialize network
     print('Loading network weights')
@@ -119,24 +120,32 @@ def main():
             return 1
         label = []
         pred = []
+        ncc_pre = []
+        ncc_post = []
         for i_batch, sample_batched in tqdm(enumerate(dl_test), desc='Testing',
                                             total=len(dl_test), unit='batch'):
             # load data
             X = sample_batched[0].to(device)
             y = sample_batched[1].to(device)
+            ncc_pre_batch = sample_batched[2]
+            ncc_post_batch = sample_batched[3]
 
             y_hat = s(model(X))
 
             label += [y.cpu().numpy()]
             pred += [y_hat.detach().cpu().numpy()]
+            ncc_pre += [ncc_pre_batch.numpy()]
+            ncc_post += [ncc_post_batch.numpy()]
 
         label = np.squeeze(np.asarray(label)).reshape(-1, 1)
         pred = np.squeeze(np.asarray(pred)).reshape(-1, 1)
+        ncc_pre = np.squeeze(np.asarray(ncc_pre)).reshape(-1, 1)
+        ncc_post = np.squeeze(np.asarray(ncc_post)).reshape(-1, 1)
 
-        fpr, tpr, thr = roc_curve(label, pred, pos_label=0)
+        # fpr, tpr, thr = roc_curve(label, pred, pos_label=0)
 
-        if debug:
-            print('FPR: {} \n TPR: {}\n'.format(fpr, tpr))
+        # if debug:
+        #     print('FPR: {} \n TPR: {}\n'.format(fpr, tpr))
 
         # Save result to npy
         res_folder_name = os.path.join(results_path, run_name + '_' + db.__class__.__name__)
@@ -146,9 +155,8 @@ def main():
         np.save(os.path.join(res_folder_name, 'result.npy'),
                 {'label': label,
                  'pred': pred,
-                 'fpr': fpr,
-                 'tpr': tpr,
-                 'thr': thr})
+                 'ncc_pre': ncc_pre,
+                 'ncc_post': ncc_post})
 
     return 0
 
