@@ -9,7 +9,6 @@ from tqdm import tqdm
 from torchvision import transforms, models
 from torchvision.models.resnet import model_urls as resnet_model_urls
 from torchvision.models.alexnet import model_urls as alexnet_model_urls
-from torchvision.models.vgg import model_urls as vgg_model_urls
 from torch.utils.data import DataLoader
 from torch.utils import model_zoo
 import torch
@@ -17,10 +16,10 @@ from tensorboardX import SummaryWriter
 import warnings
 
 
-from params import db_path, default_batch_size, default_lr, default_n_epochs, default_num_workers, default_subsample, \
+from params import default_batch_size, default_lr, default_n_epochs, default_num_workers, default_subsample, \
                    default_patch_size, default_train_size, model_path, default_patch_stride, runs_path, \
                    log_period_iter, log_start_iter, early_stop
-import data.db_classes as db_classes
+import db_classes as db_classes
 
 warnings.filterwarnings("ignore")
 
