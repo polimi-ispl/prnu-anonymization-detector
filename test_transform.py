@@ -1,27 +1,17 @@
 import os
-import random
-import string
 from glob import glob
 import numpy as np
-import pandas as pd
 import argparse
 from tqdm import tqdm
 from torchvision import transforms, models
-from torchvision.models.resnet import model_urls as resnet_model_urls
-from torchvision.models.alexnet import model_urls as alexnet_model_urls
-from torchvision.models.vgg import model_urls as vgg_model_urls
 from torch.utils.data import DataLoader
-from torch.utils import model_zoo
 import torch
-from tensorboardX import SummaryWriter
 import warnings
-from sklearn.metrics import roc_curve, accuracy_score
 
-
-from params import db_path, default_batch_size, default_lr, default_n_epochs, default_num_workers, default_subsample, \
-                   default_patch_size, default_train_size, model_path, default_patch_stride, runs_path, \
-                   log_period_iter, log_start_iter, early_stop, results_path
-import data.db_classes as db_classes
+from params import default_batch_size, default_num_workers, default_subsample, \
+                   default_patch_size, default_train_size, default_patch_stride, runs_path, \
+    results_path
+import db_classes as db_classes
 
 warnings.filterwarnings("ignore")
 torch.multiprocessing.set_sharing_strategy('file_system')

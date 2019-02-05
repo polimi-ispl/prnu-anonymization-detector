@@ -101,8 +101,6 @@ class TrainDB(Dataset):
                 W_c = zero_mean_total(img_noise_fft[:, :, c])
                 W_c_std = W_c.std(ddof=1)
                 W[:, :, c] = wiener_adaptive(W_c, W_c_std ** 2).astype(np.float32)
-                # W[:, :, c] = wiener_adaptive(W_c, (W_c_std ** 2) * 0.77, window_size_list=[3]).astype(np.float32)
-
             img = W
 
         elif self.transform_pre == 'wv_fft_wiener2':
@@ -118,7 +116,6 @@ class TrainDB(Dataset):
             for c in range(img_noise_fft.ndim):
                 W_c = zero_mean_total(img_noise_fft[:, :, c])
                 W_c_std = W_c.std(ddof=1)
-                # W[:, :, c] = wiener_adaptive(W_c, W_c_std ** 2).astype(np.float32)
                 W[:, :, c] = wiener_adaptive(W_c, (W_c_std ** 2) * 0.77, window_size_list=[3]).astype(np.float32)
 
             img = W
