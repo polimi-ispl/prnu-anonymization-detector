@@ -10,7 +10,7 @@ Please, cite this if you use this code for your research.
 
 ## Prerequisites
 + Python 3.6
-+ [Pytorch 0.4](https://pytorch.org/)
++ [Pytorch](https://pytorch.org/)
 + Numpy
 + Scipy
 + Pandas
