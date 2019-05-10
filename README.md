@@ -31,7 +31,7 @@ All the command below are meant to be run in your project root folder.
 python generate_db.py 
 ```
 This will generate several .csv files in `data/db`, containing the paths
-of the images in `data/dataset`. For convenience, we distribute a very
+of the images in `data/dataset`. For convenience, we included a very
 reduced subset of the images we considered for this work, alongside their
 matching PRNUs. The original images are from
 [Dresden dataset](http://forensics.inf.tu-dresden.de/ddimgdb/).
