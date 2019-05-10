@@ -64,3 +64,5 @@ target/
 .ipynb_checkpoints/
 
 script/
+
+\.vscode/
