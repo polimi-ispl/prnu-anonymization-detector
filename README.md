@@ -1,5 +1,11 @@
-# PRNU ANONYMIZATION DETECTOR
-IMAGE ANONYMIZATION DETECTION WITH DEEP HANDCRAFTED FEATURES (ICIP 2019)
+# IMAGE ANONYMIZATION DETECTION WITH DEEP HANDCRAFTED FEATURES
+This is the original code implementation of the paper:
+
+*N. Bonettini, D. Güera, L. Bondi, P. Bestagini, E.J. Delp, S. Tubaro,
+"Image Anonymization Detection With Deep Handcrafted Features",
+IEEE International Conference on Image Processing (ICIP), 2019*
+
+Please, cite this if you use this code for your research.
 
 
 ## Prerequisites
@@ -24,6 +30,14 @@ All the command below are meant to be run in your project root folder.
 ```
 python generate_db.py 
 ```
+This will generate several .csv files in `data/db`, containing the paths
+of the images in `data/dataset`. For convenience, we distribute a very
+reduced subset of the images we considered for this work, alongside their
+matching PRNUs. The original images are from
+[Dresden dataset](http://forensics.inf.tu-dresden.de/ddimgdb/).
+
+If you want to use your own set of images, just put them in `dataset` and
+run `generate_db.py`.
 
 ## Finetuning (training) a model
 ```
