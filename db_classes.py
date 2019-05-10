@@ -11,10 +11,10 @@ from params import db_path
 from skimage.restoration import denoise_wavelet
 from prnu.prnu.functions import wiener_adaptive, zero_mean_total
 import io
-import matplotlib.pyplot as plt
 from scipy.io import loadmat
 from prnu.prnu import extract_single
 from skimage import color
+
 
 class TrainDB(Dataset):
     def __init__(self, patch_size: tuple, subsample: float, transform_pre: str = None, transform_post=None,
@@ -229,7 +229,7 @@ class D3(TrainDB):
             self.transform_post = transform_post
 
 
-class D3_no_D200_0(TrainDB):
+class M(TrainDB):
     def __init__(self, patch_size, subsample: float = None, transform_pre=None, transform_post=None, transform_test: str = None, patch_stride: tuple=None):
         super().__init__(patch_size=patch_size, subsample=subsample, transform_pre=transform_pre,
                          transform_post=transform_post, patch_stride=patch_stride)
@@ -584,7 +584,8 @@ class TestTransDB(Dataset):
         self.transform_post = transform_post
         self.transform_test = transform_test
 
-    def _random_trans(self, img: Image):
+    @staticmethod
+    def _random_trans(img: Image):
         """
 
         :param img: original PIL.Image in range [0, 255]
@@ -743,7 +744,7 @@ class TestTransDB(Dataset):
 
 
 class Test1Trans(TestTransDB):
-    def __init__(self, patch_size, subsample: float = None, transform_pre=None, transform_post=None, transform_test: str = None, patch_stride: tuple=None):
+    def __init__(self, patch_size, subsample: float = None, transform_pre=None, transform_post=None, transform_test: str = None, patch_stride: tuple = None):
         super().__init__(patch_size=patch_size, subsample=subsample, transform_pre=transform_pre,
                          transform_post=transform_post, transform_test=transform_test, patch_stride=patch_stride)
 
