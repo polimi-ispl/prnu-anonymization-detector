@@ -9,7 +9,7 @@ import torch
 import warnings
 
 from params import default_batch_size, default_num_workers, default_subsample, \
-                   default_patch_size, default_train_size, default_patch_stride, runs_path, \
+    default_patch_size, default_train_size, default_patch_stride, runs_path, \
     results_path
 import db_classes as db_classes
 
@@ -131,11 +131,6 @@ def main():
         pred = np.squeeze(np.asarray(pred)).reshape(-1, 1)
         ncc_pre = np.squeeze(np.asarray(ncc_pre)).reshape(-1, 1)
         ncc_post = np.squeeze(np.asarray(ncc_post)).reshape(-1, 1)
-
-        # fpr, tpr, thr = roc_curve(label, pred, pos_label=0)
-
-        # if debug:
-        #     print('FPR: {} \n TPR: {}\n'.format(fpr, tpr))
 
         # Save result to npy
         res_folder_name = os.path.join(results_path, run_name + '_' + db.__class__.__name__)

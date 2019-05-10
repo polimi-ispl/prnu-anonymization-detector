@@ -28,8 +28,8 @@ def main():
     orig_mand_path_list_train = np.concatenate([orig_path_list[idx_set_train], mand_path_list[idx_set_train]])
     orig_kirch_path_list_train = np.concatenate([orig_path_list[idx_set_train], kirch_path_list[idx_set_train]])
     orig_mand_kirch_path_list_train = np.concatenate([orig_path_list[idx_set_train],
-                                                mand_path_list[idx_set_train[:len(idx_set_train) // 2]],
-                                                kirch_path_list[idx_set_train[len(idx_set_train) // 2:]]])
+                                                      mand_path_list[idx_set_train[:len(idx_set_train) // 2]],
+                                                      kirch_path_list[idx_set_train[len(idx_set_train) // 2:]]])
     orig_path_list_test = orig_path_list[idx_set_test]
     mand_path_list_test = mand_path_list[idx_set_test]
     kirch_path_list_test = kirch_path_list[idx_set_test]
