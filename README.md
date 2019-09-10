@@ -7,6 +7,14 @@ IEEE International Conference on Image Processing (ICIP), 2019*
 
 Please, cite this if you use this code for your research.
 
+## Clone the repository
+PRNU functions are contained into the submodule [prnu](https://github.com/polimi-ispl/prnu-python/tree/ebf0ec76e1aea8683d76707011ee16b29eb0619a). In order to clone the repository with the submodule you need to add the `--recurse-submodules` flag to the `clone` command, for instance:
+
+```
+git clone --recurse-submodules https://github.com/polimi-ispl/prnu-anonymization-detector.git
+```
+
+Alternatively, you can clone the [prnu](https://github.com/polimi-ispl/prnu-python/tree/ebf0ec76e1aea8683d76707011ee16b29eb0619a) repository into the empty `prnu` folder.
 
 ## Prerequisites
 + Python 3.6
